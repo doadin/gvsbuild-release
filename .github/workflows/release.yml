@@ -73,18 +73,18 @@ jobs:
         id: date
         run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
 
-      - name: Release Date
-        uses: softprops/action-gh-release@v2
-        with:
-          name: ${{ steps.date.outputs.date }}
-          tag_name: ${{ steps.date.outputs.date }}
-          body: gvsbuild-${{ steps.date.outputs.date }}
-          files: "*.zip"
-
-      #- name: Release latest
+      #- name: Release Date
       #  uses: softprops/action-gh-release@v2
       #  with:
-      #    name: latest
-      #    tag_name: latest
+      #    name: ${{ steps.date.outputs.date }}
+      #    tag_name: ${{ steps.date.outputs.date }}
       #    body: gvsbuild-${{ steps.date.outputs.date }}
       #    files: "*.zip"
+
+      - name: Release latest
+        uses: softprops/action-gh-release@v2
+        with:
+          name: latest
+          tag_name: latest
+          body: gvsbuild-${{ steps.date.outputs.date }}
+          files: "*.zip"
