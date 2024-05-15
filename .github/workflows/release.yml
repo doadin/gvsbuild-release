@@ -46,6 +46,7 @@ jobs:
         run: >
           gvsbuild build
           --platform=${{ matrix.platform }}
+          --configuration=release
           --ninja-opts -j2
           --enable-gi
           --py-wheel
