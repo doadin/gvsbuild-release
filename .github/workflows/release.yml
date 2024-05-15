@@ -72,7 +72,7 @@ jobs:
 
       - name: Current Date
         id: date
-        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+        run: echo "date=$(date +'%Y-%m-%d')" >> $env:GITHUB_OUTPUT
 
       #- name: Release Date
       #  uses: softprops/action-gh-release@v2
