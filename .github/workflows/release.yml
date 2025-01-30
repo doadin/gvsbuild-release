@@ -16,7 +16,7 @@ jobs:
       contents: write
     strategy:
       matrix:
-        python: ["3.9","3.10","3.11","3.12"]
+        python: ["3.9","3.10","3.11","3.12","3.13"]
         platform: [x64,x86]
         vstudio: [17]
       fail-fast: false
