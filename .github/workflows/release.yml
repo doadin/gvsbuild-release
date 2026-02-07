@@ -57,7 +57,7 @@ jobs:
           gvsbuild build
           --platform=${{ matrix.arch }}
           --vs-ver=${{ matrix.vstudio }}
-          --win-sdk-ver=sdk-17763
+          --win-sdk-ver=sdk-19041
           --enable-gi
           --py-wheel
           --patches-root-dir=${{ github.workspace }}\gvsbuild\patches
