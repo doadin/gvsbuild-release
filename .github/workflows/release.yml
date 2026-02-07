@@ -1,8 +1,6 @@
 name: Release
 
-# Controls when the workflow will run
 on:
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
       ref:
@@ -22,7 +20,6 @@ jobs:
       fail-fast: false
 
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
         with:
           repository: doadin/gvsbuild
@@ -34,11 +31,13 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
           architecture: ${{ matrix.platform }}
-          cache: 'pip' # caching pip dependencies
+          cache: 'pip'
 
       - name: Install Build Deps
-        run: python -m pip install wheel build
-  
+        run: |
+          python -m pip install wheel build
+          python -m pip install meson ninja
+
       - name: Install gvsbuild tool
         run: python -m pip install .
 
@@ -47,6 +46,7 @@ jobs:
           gvsbuild build
           --platform=${{ matrix.platform }}
           --configuration=release
+          --vs-ver=${{ matrix.vstudio }}
           --ninja-opts -j2
           --enable-gi
           --py-wheel
@@ -73,14 +73,6 @@ jobs:
       - name: Current Date
         id: date
         run: echo "date=$(date +'%Y-%m-%d')" >> $env:GITHUB_OUTPUT
-
-      #- name: Release Date
-      #  uses: softprops/action-gh-release@v2
-      #  with:
-      #    name: ${{ steps.date.outputs.date }}
-      #    tag_name: ${{ steps.date.outputs.date }}
-      #    body: gvsbuild-${{ steps.date.outputs.date }}
-      #    files: "*.zip"
 
       - name: Release latest
         uses: softprops/action-gh-release@v2
