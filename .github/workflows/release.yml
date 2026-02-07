@@ -48,36 +48,6 @@ jobs:
       - name: Install gvsbuild tool
         run: python -m pip install .
         
-      - name: Download gobject-introspection source
-        run: gvsbuild download gobject-introspection
-
-      - name: Patch gobject-introspection for Python 3.12+
-        shell: pwsh
-        run: |
-          # Locate GI source directory
-          $giDir = Get-ChildItem -Recurse -Directory "C:\gtk-build\sources" |
-                   Where-Object { $_.Name -eq "gobject-introspection" } |
-                   Select-Object -First 1
-
-          if (-not $giDir) {
-            Write-Error "Could not locate gobject-introspection source directory"
-            exit 1
-          }
-
-          $patchFile = Join-Path $giDir.FullName "giscanner/msvccompiler.py"
-          Write-Host "Patching: $patchFile"
-
-          $content = Get-Content $patchFile -Raw
-
-          # Replace the old constructor call with a Python 3.12-safe version
-          $patched = $content -replace `
-            'CCompiler.__init__\(self, verbose, dry_run, force\)', `
-            'try:
-            CCompiler.__init__(self, verbose, dry_run, force)
-            except TypeError:
-            CCompiler.__init__(self, verbose=verbose, dry_run=dry_run, force=force)'
-
-          Set-Content -Path $patchFile -Value $patched -Encoding UTF8
       - name: Move git binary
         # Temporarily move preinstalled git to prevent errors related to cygwin.
         run: Rename-Item "C:\Program Files\Git\usr\bin" notbin
