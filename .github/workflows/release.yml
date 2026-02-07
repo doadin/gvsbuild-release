@@ -49,31 +49,32 @@ jobs:
         run: python -m pip install .
 
       - name: Patch gobject-introspection for Python 3.12+
-        shell: bash
+        shell: pwsh
         run: |
-          GI_DIR=$(python - << 'EOF'
-          import gvsbuild, os
-          # gvsbuild stores sources under C:\gtk-build\build\<arch>\<config>\gobject-introspection
-          root = r"C:\gtk-build\build"
-          for arch in ["x64", "win32"]:
-              for cfg in ["release", "debug"]:
-                  p = os.path.join(root, arch, cfg, "gobject-introspection")
-                  if os.path.isdir(p):
-                      print(p)
-                  raise SystemExit
-          EOF
-          )
-          echo "Detected GI source at: $GI_DIR"
+          # Locate GI source directory
+          $giDir = Get-ChildItem -Recurse -Directory "C:\gtk-build\build" |
+                   Where-Object { $_.Name -eq "gobject-introspection" } |
+                   Select-Object -First 1
 
-          PATCH_FILE="$GI_DIR/_gvsbuild-meson/giscanner/msvccompiler.py"
+          if (-not $giDir) {
+            Write-Error "Could not locate gobject-introspection source directory"
+            exit 1
+          }
 
-          echo "Patching: $PATCH_FILE"
+          $patchFile = Join-Path $giDir.FullName "_gvsbuild-meson/giscanner/msvccompiler.py"
+          Write-Host "Patching: $patchFile"
 
-          sed -i 's/CCompiler.__init__(self, verbose, dry_run, force)/try:\\
-            CCompiler.__init__(self, verbose, dry_run, force)\\
-          except TypeError:\\
-            CCompiler.__init__(self, verbose=verbose, dry_run=dry_run, force=force)/' "$PATCH_FILE"
+          $content = Get-Content $patchFile -Raw
 
+          # Replace the old constructor call with a Python 3.12-safe version
+          $patched = $content -replace `
+            'CCompiler.__init__\(self, verbose, dry_run, force\)', `
+            'try:
+            CCompiler.__init__(self, verbose, dry_run, force)
+            except TypeError:
+            CCompiler.__init__(self, verbose=verbose, dry_run=dry_run, force=force)'
+
+          Set-Content -Path $patchFile -Value $patched -Encoding UTF8
       - name: Move git binary
         # Temporarily move preinstalled git to prevent errors related to cygwin.
         run: Rename-Item "C:\Program Files\Git\usr\bin" notbin
