@@ -17,8 +17,8 @@ jobs:
     runs-on: windows-2022
     strategy:
       matrix:
-        python: ["3.10","3.12"]
-        platform: [x64, win32]
+        python: ["3.12"]
+        platform: [x64]
         vstudio: [vs2022]
         fork: ["${{ github.event.inputs.fork }}"]
         ref: ["${{ github.event.inputs.ref }}"]
@@ -47,6 +47,32 @@ jobs:
 
       - name: Install gvsbuild tool
         run: python -m pip install .
+
+      - name: Patch gobject-introspection for Python 3.12+
+        shell: bash
+        run: |
+          GI_DIR=$(python - << 'EOF'
+          import gvsbuild, os
+          # gvsbuild stores sources under C:\gtk-build\build\<arch>\<config>\gobject-introspection
+          root = r"C:\gtk-build\build"
+          for arch in ["x64", "win32"]:
+              for cfg in ["release", "debug"]:
+                  p = os.path.join(root, arch, cfg, "gobject-introspection")
+                  if os.path.isdir(p):
+                      print(p)
+                  raise SystemExit
+          EOF
+          )
+          echo "Detected GI source at: $GI_DIR"
+
+          PATCH_FILE="$GI_DIR/_gvsbuild-meson/giscanner/msvccompiler.py"
+
+          echo "Patching: $PATCH_FILE"
+
+          sed -i 's/CCompiler.__init__(self, verbose, dry_run, force)/try:\\
+            CCompiler.__init__(self, verbose, dry_run, force)\\
+          except TypeError:\\
+            CCompiler.__init__(self, verbose=verbose, dry_run=dry_run, force=force)/' "$PATCH_FILE"
 
       - name: Move git binary
         # Temporarily move preinstalled git to prevent errors related to cygwin.
