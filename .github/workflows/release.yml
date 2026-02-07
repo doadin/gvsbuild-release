@@ -23,18 +23,6 @@ jobs:
         fork: ["${{ github.event.inputs.fork }}"]
         ref: ["${{ github.event.inputs.ref }}"]
         include:
-          - python: "3.7"
-            platform: x64
-            arch: x64
-            vstudio: 17
-            fork: "Lord-Kamina"
-            ref: "older"
-          - python: "3.7"
-            platform: win32
-            arch: x86
-            vstudio: 17
-            fork: "Lord-Kamina"
-            ref: "older"
           - platform: x64
             arch: x64
           - platform: win32
