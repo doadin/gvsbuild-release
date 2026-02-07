@@ -56,7 +56,6 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
         with:
           sdk: 10.0.19041.0
-          toolset: 14.29
 
       - name: Build
         run: >
@@ -68,16 +67,6 @@ jobs:
           --patches-root-dir=${{ github.workspace }}\gvsbuild\patches
           gtk3 pycairo pygobject wing lz4 enchant hicolor-icon-theme adwaita-icon-theme
 
-      - name: Upload gvsbuild build directory
-        if: failure() || success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: gvsbuild-build-tree
-          path: |
-            C:\_gvsbuild\build\x64\release
-            C:\_gvsbuild\logs
-          retention-days: 7
-
       - name: Restore git binary
         run: Rename-Item  "C:\Program Files\Git\usr\notbin" bin
 
@@ -87,7 +76,7 @@ jobs:
           ${{ github.workspace }}/${{ env.release_name }}.zip
           "C:\gtk-build\gtk\${{matrix.platform}}\release"
         env:
-          release_name: "gvsbuild-py${{ matrix.python }}-vs${{ matrix.vstudio }}-${{ matrix.arch }}"
+          release_name: "gvsbuild-py${{ matrix.python }}-vs17-${{ matrix.arch }}"
 
       - name: Current Date
         id: date
