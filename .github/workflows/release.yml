@@ -19,7 +19,7 @@ jobs:
       matrix:
         python: ["3.9", "3.10","3.12"]
         platform: [x64, win32]
-        vstudio: [17]
+        vstudio: [vs2022]
         fork: ["${{ github.event.inputs.fork }}"]
         ref: ["${{ github.event.inputs.ref }}"]
         include:
@@ -69,6 +69,7 @@ jobs:
           gvsbuild build
           --platform=${{ matrix.arch }}
           --vs-ver=${{ matrix.vstudio }}
+          --win-sdk-ver=sdk-17763
           --enable-gi
           --py-wheel
           --patches-root-dir=${{ github.workspace }}\gvsbuild\patches
