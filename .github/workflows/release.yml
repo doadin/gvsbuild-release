@@ -51,12 +51,6 @@ jobs:
       - name: Move git binary
         # Temporarily move preinstalled git to prevent errors related to cygwin.
         run: Rename-Item "C:\Program Files\Git\usr\bin" notbin
-
-      - name: Setup MSVC with SDK 19041
-        uses: ilammy/msvc-dev-cmd@v1
-        with:
-          sdk: 10.0.19041.0
-          toolset: 14.29
           
       - name: Build
         run: >
